@@ -1,0 +1,131 @@
+#include <stdio.h>
+#include <sys/times.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
+
+#define MAX_PID 32768  // maximum PID value on Linux
+#define MAX_TIME 60    // maximum elapsed time in minutes
+
+void terminate_parents(pid_t pid, int el_time);
+void terminate_tree(pid_t pid, int num_defunct_children);
+
+int main(int argc, char *argv[]) {
+    if (argc !=  4) {
+        fprintf(stderr, "Usage: %s [root_process] [OPTION] [PROC_ELTIME]\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+printf("pppppppppp is %s", argv[2]);
+    if (strcmp(argv[2], "-t") == 0) {
+	pid_t root_pid = atoi(argv[1]);
+    int el_time = atoi(argv[3]);
+    if (root_pid <= 0 || el_time <= 0 || el_time > MAX_TIME) {
+        fprintf(stderr, "Invalid arguments.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // check if root_pid exists
+    if (kill(root_pid, 0) != 0) {
+        fprintf(stderr, "Process %d does not exist.\n", root_pid);
+        exit(EXIT_FAILURE);
+    }
+
+    terminate_parents(root_pid, el_time);
+}
+    if (strcmp(argv[2], "-b") == 0) {
+	pid_t root_pid = atoi(argv[1]);
+    int num_defunct_children = atoi(argv[3]);
+    if (root_pid <= 0 || num_defunct_children <= 0) {
+        fprintf(stderr, "Invalid arguments.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // check if root_pid exists
+    if (kill(root_pid, 0) != 0) {
+        fprintf(stderr, "Process %d does not exist.\n", root_pid);
+        exit(EXIT_FAILURE);
+    }
+
+    terminate_tree(root_pid, num_defunct_children);
+
+}
+
+    return 0;
+}
+
+void terminate_parents(pid_t pid, int el_time) {
+    pid_t ppid = getppid();
+    if (ppid <= 1) {  // reached init or beyond
+        return;
+    }
+
+    // check if the process is defunct
+    int status;
+    if (waitpid(pid, &status, WNOHANG) == 0) {
+        // process is still running, move on to its children
+        terminate_parents(ppid, el_time);
+        return;
+    }
+
+    // process is defunct, check elapsed time
+    struct tms t;
+    if (times(&t) == -1) {
+        perror("times");
+        exit(EXIT_FAILURE);
+    }
+
+    int elapsed_time = t.tms_cutime / CLOCKS_PER_SEC / 60;
+    if (elapsed_time >= el_time) {
+        printf("Terminating parent process %d (elapsed time: %d minutes)\n", ppid, elapsed_time);
+        kill(ppid, SIGTERM);
+    }
+
+    // move on to the next parent
+    terminate_parents(ppid, el_time);
+}
+
+int count_defunct_children(pid_t pid) {
+    int num_defunct_children = 0;
+
+    pid_t child_pid;
+    int status;
+    while ((child_pid = waitpid(pid, &status, WNOHANG)) > 0) {
+        if (WIFEXITED(status) || WIFSIGNALED(status)) {
+            // child process has terminated
+            continue;
+        }
+
+        if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGCHLD) {
+            // child process has become defunct
+            num_defunct_children++;
+        }
+    }
+
+    if (child_pid == -1 && num_defunct_children == 0) {
+        perror("waitpid");
+        exit(EXIT_FAILURE);
+    }
+
+    return num_defunct_children;
+}
+
+void terminate_tree(pid_t pid, int num_defunct_children) {
+    int defunct_children = count_defunct_children(pid);
+    if (defunct_children >= num_defunct_children) {
+        printf("Terminating process %d (defunct children: %d)\n", pid, 
+defunct_children);
+        kill(pid, SIGTERM);
+    } else {
+        // move on to the children
+        pid_t child_pid;
+        while ((child_pid = waitpid(pid, NULL, WNOHANG)) > 0) {
+            terminate_tree(child_pid, num_defunct_children);
+        }
+    }
+}
+
+
