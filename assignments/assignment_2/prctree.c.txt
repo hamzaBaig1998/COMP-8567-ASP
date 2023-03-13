@@ -1,0 +1,438 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define MAX_PATH_LENGTH 256
+#define MAX_BUF_LEN 1024
+#define MAX_DEPTH 100
+
+// Function to recursively search for the process with the given PID
+void search_process(int root_pid, int process_pid) {
+    char path[MAX_PATH_LENGTH];
+    sprintf(path, "/proc/%d/task", root_pid);
+    DIR* dir = opendir(path);
+    if (dir == NULL) {
+        return;
+    }
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        int pid = atoi(entry->d_name);
+        if (pid != 0 && pid != getpid() && pid != root_pid) {
+            // Check if this process has the desired PID
+            if (pid == process_pid) {
+                // Print the PID and PPID of the process
+                char status_path[MAX_PATH_LENGTH];
+                sprintf(status_path, "/proc/%d/status", pid);
+                FILE* status_file = fopen(status_path, "r");
+                if (status_file == NULL) {
+                    return;
+                }
+                char line[256];
+                int ppid = 0;
+                while (fgets(line, sizeof(line), status_file) != NULL) {
+                    if (strncmp(line, "PPid:", 5) == 0) {
+                        ppid = atoi(line + 6);
+                        break;
+                    }
+                }
+                fclose(status_file);
+                printf("PID: %d, PPID: %d\n", pid, ppid);
+                return;
+            }
+            // Recursively search for the process in this child process's tree
+            search_process(pid, process_pid);
+        }
+    }
+    closedir(dir);
+}
+
+
+
+
+
+
+void print_process_info(char* pid) {
+    char path[MAX_PATH_LENGTH];
+    char ppid[MAX_BUF_LEN];
+    FILE* fp;
+
+    // Open the stat file for the process
+    snprintf(path, MAX_PATH_LENGTH, "/proc/%s/stat", pid);
+    fp = fopen(path, "r");
+    if (fp == NULL) {
+        return;
+    }
+
+    // Read the PID and PPID from the stat file
+    fscanf(fp, "%s %*s %*s %s", pid, ppid);
+
+    // Print the PID and PPID
+    printf("%s %s\n", pid, ppid);
+
+    fclose(fp);
+}
+
+
+
+
+
+
+void search_process2(int root_pid, int process_pid, int show_children) {
+    char path[MAX_PATH_LENGTH];
+    sprintf(path, "/proc/%d/task", root_pid);
+    DIR* dir = opendir(path);
+    if (dir == NULL) {
+        return;
+    }
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        int pid = atoi(entry->d_name);
+        if (pid != 0 && pid != getpid() && pid != root_pid) {
+            // Check if this process has the desired PID
+            if (pid == process_pid) {
+                // Print the PID and PPID of the process
+                char status_path[MAX_PATH_LENGTH];
+                sprintf(status_path, "/proc/%d/status", pid);
+                FILE* status_file = fopen(status_path, "r");
+                if (status_file == NULL) {
+                    return;
+                }
+                char line[256];
+                int ppid = 0;
+                while (fgets(line, sizeof(line), status_file) != NULL) {
+                    if (strncmp(line, "PPid:", 5) == 0) {
+                        ppid = atoi(line + 6);
+                        break;
+                    }
+                }
+                fclose(status_file);
+                printf("PID: %d, PPID: %d\n", pid, ppid);
+
+                // If show_children is true, print the PIDs of all the child processes
+                if (show_children) {
+		    printf("printing......");	
+                    sprintf(path, "/proc/%d/task/%d/children", getpid(), pid);
+                    FILE* child_file = fopen(path, "r");
+                    if (child_file != NULL) {
+                        printf("Child PIDs:");
+                        while (fgets(line, sizeof(line), child_file) != NULL) {
+                            int child_pid = atoi(line);
+                            printf(" %d", child_pid);
+                        }
+                        printf("\n");
+                        fclose(child_file);
+                    }
+                }
+                return;
+            }
+            // Recursively search for the process in this child process's tree
+            search_process2(pid, process_pid, show_children);
+        }
+    }
+    closedir(dir);
+}
+
+
+
+
+
+
+int is_child(char* parent_pid, char* child_pid) {
+    char path[MAX_PATH_LENGTH];
+    char ppid[MAX_BUF_LEN];
+    FILE* fp;
+    int res = 0;
+
+    // Open the stat file for the child process
+    snprintf(path, MAX_PATH_LENGTH, "/proc/%s/stat", child_pid);
+    fp = fopen(path, "r");
+    if (fp == NULL) {
+        return 0;
+    }
+
+    // Read the PPID from the stat file
+    fscanf(fp, "%*s %*s %*s %s", ppid);
+
+    // Compare the PPID with the parent process id
+    if (strcmp(ppid, parent_pid) == 0) {
+        res = 1;
+    }
+
+    fclose(fp);
+
+    return res;
+}
+
+
+
+
+void print_sibling_processes(char* pid) {
+    char path[MAX_PATH_LENGTH];
+    char ppid[MAX_BUF_LEN];
+    DIR* dir;
+    struct dirent* ent;
+
+    // Open the parent directory of the specified process
+    snprintf(path, MAX_PATH_LENGTH, "/proc/%s/", pid);
+    dir = opendir(path);
+    if (dir == NULL) {
+        return;
+    }
+
+    // Read the directory entries and print the PID and PPID of sibling processes
+    while ((ent = readdir(dir)) != NULL) {
+        if (ent->d_type == DT_DIR && atoi(ent->d_name) != 0 && atoi(ent->d_name) != atoi(pid)) {
+            if (is_child(ppid, ent->d_name)) {
+                print_process_info(ent->d_name);
+            }
+        }
+    }
+
+    closedir(dir);
+}
+
+
+
+
+
+int get_ppid(char *pid) {
+    char filename[100];
+    char buffer[100];
+    FILE *fp;
+
+    sprintf(filename, "/proc/%s/status", pid);
+    fp = fopen(filename, "r");
+
+    if (fp == NULL) {
+        printf("Error opening file: %s\n", filename);
+        return -1;
+    }
+
+    while (fgets(buffer, 100, fp)) {
+        if (strncmp(buffer, "PPid:", 5) == 0) {
+            fclose(fp);
+            return atoi(&buffer[6]);
+        }
+    }
+
+    fclose(fp);
+    return -1;
+}
+
+
+
+
+
+
+void print_grandchildren(int process_id)
+{
+    char path[MAX_PATH_LENGTH];
+    char buf[MAX_BUF_LEN];
+    snprintf(path, sizeof(path), "/proc/%d/task/%d/children", process_id, process_id);
+    FILE* fp = fopen(path, "r");
+    if (fp == NULL) {
+        printf("Failed to open file %s\n", path);
+        return;
+    }
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+        int pid = atoi(buf);
+        snprintf(path, sizeof(path), "/proc/%d/task/%d/children", pid, pid);
+        FILE* fp2 = fopen(path, "r");
+        if (fp2 == NULL) {
+            printf("Failed to open file %s\n", path);
+            continue;
+        }
+        while (fgets(buf, sizeof(buf), fp2) != NULL) {
+            int gpid = atoi(buf);
+            snprintf(path, sizeof(path), "/proc/%d/stat", gpid);
+            FILE* fp3 = fopen(path, "r");
+            if (fp3 == NULL) {
+                printf("Failed to open file %s\n", path);
+                continue;
+            }
+            int ppid;
+            char status;
+            fscanf(fp3, "%*d %*s %c %d", &status, &ppid);
+            fclose(fp3);
+            if (ppid == pid) {
+                printf("%d %d\n", gpid, ppid);
+            }
+        }
+        fclose(fp2);
+    }
+    fclose(fp);
+}
+
+
+
+bool is_defunct(pid_t pid) {
+    int status;
+    pid_t result = waitpid(pid, &status, WNOHANG);
+    if (result == -1) {
+        perror("waitpid");
+        return false;
+    }
+    if (result == 0) {
+        /* process still running */
+        return false;
+    }
+    if (WIFEXITED(status) || WIFSIGNALED(status)) {
+        /* process exited normally or due to a signal */
+        return true;
+    }
+    return false;
+}
+
+/* recursive function to traverse the process tree and print information */
+void traverse_process_tree(pid_t root_pid, pid_t target_pid, int depth) {
+    if (depth > MAX_DEPTH) {
+        printf("Maximum depth exceeded.\n");
+        return;
+    }
+
+    /* get information about the root process */
+    char stat_filepath[256];
+    sprintf(stat_filepath, "/proc/%d/stat", root_pid);
+    FILE* stat_file = fopen(stat_filepath, "r");
+    if (stat_file == NULL) {
+        perror("fopen");
+        return;
+    }
+
+    pid_t pid;
+    char name[256];
+    char state;
+    pid_t ppid;
+    fscanf(stat_file, "%d %s %c %d", &pid, name, &state, &ppid);
+    fclose(stat_file);
+
+    if (pid == target_pid) {
+        /* target process found */
+        printf("PID: %d\n", pid);
+        printf("PPID: %d\n", ppid);
+        printf("Defunct: %s\n", is_defunct(pid) ? "YES" : "NO");
+        return;
+    }
+
+    /* recursively traverse child processes */
+    char children_filepath[256];
+    sprintf(children_filepath, "/proc/%d/task/%d/children", root_pid, pid);
+    FILE* children_file = fopen(children_filepath, "r");
+    if (children_file == NULL) {
+        /* process has no children */
+        return;
+    }
+
+    pid_t child_pid;
+    while (fscanf(children_file, "%d", &child_pid) != EOF) {
+        traverse_process_tree(root_pid, target_pid, depth+1);
+    }
+
+    fclose(children_file);
+}
+
+
+
+
+void list_defunct_children(pid_t parent_pid) {
+    char cmd[100];
+    sprintf(cmd, "ps -o pid,state --no-headers --ppid %d", parent_pid);
+    FILE* fp = popen(cmd, "r");
+    if (fp == NULL) {
+        printf("Error: failed to execute command\n");
+        return;
+    }
+    char line[100];
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        pid_t child_pid;
+        char state[10];
+        if (sscanf(line, "%d %s", &child_pid, state) != 2) {
+            continue;
+        }
+        if (strcmp(state, "Z") == 0) {
+            printf("%d\n", child_pid);
+        }
+    }
+    pclose(fp);
+}
+
+
+
+
+
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        printf("Usage: %s [root_process] [process_id] OPTION\n", argv[0]);
+        return 1;
+    }
+    int root_pid = atoi(argv[1]);
+    int process_pid = atoi(argv[2]);
+    int show_children = 0;
+    if (argc == 4 && strcmp(argv[3], "-c") == 0) {
+printf("showing children");
+        show_children = 1;
+    }
+    search_process2(root_pid, process_pid, show_children);
+if (argc == 4 && strcmp(argv[3], "-s") == 0) {
+printf("showing siblings");
+        print_sibling_processes(argv[2]);
+    }
+
+
+
+if (argc == 4 && strcmp(argv[3], "-gp") == 0) {
+char *parent_pid = argv[2];
+    char *grandparent_pid = NULL;
+
+    while (1) {
+        int ppid = get_ppid(parent_pid);
+
+        if (ppid == -1) {
+            break;
+        }
+
+        char ppid_str[10];
+        sprintf(ppid_str, "%d", ppid);
+
+        if (strcmp(ppid_str, argv[1]) == 0) {
+            grandparent_pid = parent_pid;
+            break;
+        }
+
+        parent_pid = ppid_str;
+    }
+
+    // print grandparent pid
+    if (grandparent_pid != NULL) {
+        printf("%s\n", grandparent_pid);
+        
+    } else {
+        printf("No grandparent process found.\n");
+        
+    }
+}
+
+
+
+if (argc == 4 && strcmp(argv[3], "-gc") == 0) {
+    print_grandchildren(process_pid);
+}
+
+if (argc == 4 && strcmp(argv[3], "-z") == 0) {
+    traverse_process_tree(root_pid, process_pid, 0);
+}
+
+if (argc == 4 && strcmp(argv[3], "-zl") == 0) {
+
+    list_defunct_children(process_pid);
+}
+
+
+
+    return 0;
+}
+
+
