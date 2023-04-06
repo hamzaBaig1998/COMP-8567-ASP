@@ -1,0 +1,4 @@
+lab6a.sh*
+sample.txt
+lab6a.sh*
+sample.txt

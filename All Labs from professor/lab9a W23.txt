@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "Error: No input files provided."
+  exit 1
+elif [ $# -gt 5 ]; then
+  echo "Error: Maximum of 5 input files can be provided."
+  exit 1
+fi
+if [ ! -e output.txt ]; then
+  touch output.txt
+fi
+output="output.txt"
+counter=0
+
+until [ $# -eq 0 ]; do
+  file=$1
+  shift
+  extension=${file##*.}
+
+  if [ ! -f "$file" ] || [ "$extension" != "txt" ]; then
+    echo "Error: Invalid file $file."
+    exit 1
+  fi
+
+  if [ $counter -eq 0 ]; then
+    cat "$file" > output.txt
+    echo "" >> output.txt
+  else
+    cat "$file" >> output.txt
+    echo "" >> output.txt
+  fi
+  ((counter++))
+done
+echo "Concatenation complete. Result stored in $output."

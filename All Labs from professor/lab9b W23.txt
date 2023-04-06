@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "Error: No input files provided."
+  exit 1
+elif [ $# -gt 5 ]; then
+  echo "Error: Maximum of 5 input files can be provided."
+  exit 1
+fi
+if [ ! -e output_rev.txt ]; then
+  touch output_rev.txt
+fi
+output="output_rev.txt"
+counter=0
+files=()
+
+for file in "$@"; do
+  extension=${file##*.}
+  if [ -f "$file" ] && [ "$extension" = "txt" ]; then
+    files+=("$file")
+  elif [ ! -f "$file" ]; then
+    echo "Error: File $file does not exist."
+    exit 1
+  else
+    echo "Error: File $file is not a .txt file."
+    exit 1
+  fi
+done
+
+for (( i=${#files[@]}-1; i>=0; i-- )); do
+  file=${files[i]}
+  if [ $counter -eq 0 ]; then
+    cat $file > $output
+    echo "" >> output_rev.txt
+  else
+    cat $file >> $output
+    echo "" >> output_rev.txt
+  fi
+  ((counter++))
+done
+echo "Reverse concatenation complete. Result stored in $output."
