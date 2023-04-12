@@ -1,0 +1,14 @@
+countfiles.sh
+lab6a.sh
+sample.txt
+test_1
+countfiles.sh
+lab6a.sh
+sample.txt
+test_1
+countfiles.sh
+lab6a.sh
+lab_8-110089314 (Hamza Baig)
+lab_8-110089314 (Hamza Baig).zip
+sample.txt
+test_1

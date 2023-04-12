@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ ! -e "sample.txt" ]; then
+  touch sample.txt
+fi
+
+if [ $(stat -c %U sample.txt) == $USER ]; then
+  if [ -w "sample.txt" ]; then
+    ls -1 >> sample.txt
+  else
+    echo "You don't have write permission on sample.txt"
+    chmod u+w sample.txt
+    ls -1 >> sample.txt
+  fi
+else
+  echo "You are not the owner of sample.txt"
+fi
