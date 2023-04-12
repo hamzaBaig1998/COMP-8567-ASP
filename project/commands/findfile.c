@@ -8,6 +8,11 @@ In the main function, the program checks that the correct number of arguments ha
 and then calls search_file with the specified filename and the user's home directory (getenv("HOME")).
 If the file is not found, it prints "File not found" to the console.
 
+In this version of the code, the search_file function now takes a pointer to an int variable found,
+which is used to keep track of whether the file has been found or not. If the file is found,
+search_file sets *found to 1 and breaks out of the loop. The main function now checks the value
+of found after the search is complete, and prints "File not found" only if found is 0.
+
 To compile this program, you can use a command like:
 
 gcc -o findfile findfile.c
