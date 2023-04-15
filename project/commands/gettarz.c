@@ -18,6 +18,7 @@ files, the program prints "No file found" and exits.
 #include <unistd.h>
 
 #define MAX_PATH_LENGTH 4096
+#define MAX_COMMAND_LENGHT 10000
 
 int is_valid_extension(char *filename, char **extensions, int num_extensions)
 {
@@ -41,12 +42,15 @@ int is_valid_extension(char *filename, char **extensions, int num_extensions)
 
 void create_tar_file(char *tar_filename, char **extensions, int num_extensions)
 {
-    FILE *tar_file = fopen(tar_filename, "wb");
-    if (!tar_file)
-    {
-        perror("Error creating tar file");
-        exit(1);
-    }
+    char complete_files_path[10000];
+    char command[MAX_COMMAND_LENGHT];
+    char file_path[MAX_PATH_LENGTH];
+    // FILE *tar_file = fopen(tar_filename, "wb");
+    // if (!tar_file)
+    // {
+    //     perror("Error creating tar file");
+    //     exit(1);
+    // }
 
     DIR *root_dir = opendir(getenv("HOME"));
     if (!root_dir)
@@ -56,7 +60,6 @@ void create_tar_file(char *tar_filename, char **extensions, int num_extensions)
     }
 
     struct dirent *dir_entry;
-    char file_path[MAX_PATH_LENGTH];
     int found_files = 0;
     while ((dir_entry = readdir(root_dir)) != NULL)
     {
@@ -69,47 +72,56 @@ void create_tar_file(char *tar_filename, char **extensions, int num_extensions)
         if (is_valid_extension(dir_entry->d_name, extensions, num_extensions))
         {
             found_files++;
+            printf("file: %s\n", dir_entry->d_name);
+            sprintf(complete_files_path, "%s%s%s", complete_files_path, file_path, " ");
+            // struct stat file_stats;
+            // if (stat(file_path, &file_stats) == -1)
+            // {
+            //     perror("Error getting file stats");
+            //     exit(1);
+            // }
 
-            struct stat file_stats;
-            if (stat(file_path, &file_stats) == -1)
-            {
-                perror("Error getting file stats");
-                exit(1);
-            }
+            // FILE *file = fopen(file_path, "rb");
+            // if (!file)
+            // {
+            //     perror("Error opening file");
+            //     exit(1);
+            // }
 
-            FILE *file = fopen(file_path, "rb");
-            if (!file)
-            {
-                perror("Error opening file");
-                exit(1);
-            }
+            // char header[100];
+            // sprintf(header, "%s\n", dir_entry->d_name);
+            // fwrite(header, sizeof(char), strlen(header), tar_file);
 
-            char header[100];
-            sprintf(header, "%s\n", dir_entry->d_name);
-            fwrite(header, sizeof(char), strlen(header), tar_file);
+            // char size_str[20];
+            // sprintf(size_str, "%ld\n", file_stats.st_size);
+            // fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
 
-            char size_str[20];
-            sprintf(size_str, "%ld\n", file_stats.st_size);
-            fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
+            // char buffer[4096];
+            // size_t read_bytes;
+            // while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
+            // {
+            //     fwrite(buffer, 1, read_bytes, tar_file);
+            // }
 
-            char buffer[4096];
-            size_t read_bytes;
-            while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
-            {
-                fwrite(buffer, 1, read_bytes, tar_file);
-            }
-
-            fclose(file);
+            // fclose(file);
         }
     }
 
-    closedir(root_dir);
-    fclose(tar_file);
+    // closedir(root_dir);
+    // fclose(tar_file);
 
     if (found_files == 0)
     {
         printf("No file found\n");
         exit(0);
+    }
+    else
+    {
+
+        sprintf(command, "%s%s%s", "tar -czvf temp.tar.gz -P", " ", complete_files_path);
+        printf("complete file paths: %s\n", complete_files_path);
+        printf("command: %s\n", command);
+        system(command);
     }
 }
 
@@ -137,6 +149,7 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc - 1; i++)
     {
         extensions[i - 1] = argv[i];
+        printf("extension %d: %s\n", i, argv[i]);
     }
     int num_extensions = argc - 2;
 
@@ -148,7 +161,11 @@ int main(int argc, char *argv[])
     char tar_filename[] = "temp.tar.gz";
     create_tar_file(tar_filename, extensions, num_extensions);
 
-    if (argc == 9 && strcmp(argv[8], "-u") == 0)
+    // if (argc == 9 && strcmp(argv[8], "-u") == 0)
+    // {
+    //     unzip_tar_file(tar_filename);
+    // }
+    if (strcmp(argv[argc - 1], "-u") == 0)
     {
         unzip_tar_file(tar_filename);
     }

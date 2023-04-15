@@ -13,15 +13,19 @@ The program takes two required arguments, size1 and size2, and an optional third
 #include <unistd.h>
 
 #define MAX_PATH_LENGTH 4096
+#define MAX_COMMAND_LENGHT 10000
 
 void create_tar_file(char *tar_filename, long size1, long size2)
 {
-    FILE *tar_file = fopen(tar_filename, "wb");
-    if (!tar_file)
-    {
-        perror("Error creating tar file");
-        exit(1);
-    }
+    char complete_files_path[10000];
+    char command[MAX_COMMAND_LENGHT];
+    char file_path[MAX_PATH_LENGTH];
+    // FILE *tar_file = fopen(tar_filename, "wb");
+    // if (!tar_file)
+    // {
+    //     perror("Error creating tar file");
+    //     exit(1);
+    // }
 
     DIR *root_dir = opendir(getenv("HOME"));
     if (!root_dir)
@@ -31,7 +35,7 @@ void create_tar_file(char *tar_filename, long size1, long size2)
     }
 
     struct dirent *dir_entry;
-    char file_path[MAX_PATH_LENGTH];
+    // int file_count = 0;
     while ((dir_entry = readdir(root_dir)) != NULL)
     {
         if (dir_entry->d_type != DT_REG)
@@ -40,6 +44,7 @@ void create_tar_file(char *tar_filename, long size1, long size2)
         }
 
         sprintf(file_path, "%s/%s", getenv("HOME"), dir_entry->d_name);
+
         struct stat file_stats;
         if (stat(file_path, &file_stats) == -1)
         {
@@ -49,34 +54,43 @@ void create_tar_file(char *tar_filename, long size1, long size2)
 
         if (file_stats.st_size >= size1 && file_stats.st_size <= size2)
         {
-            FILE *file = fopen(file_path, "rb");
-            if (!file)
-            {
-                perror("Error opening file");
-                exit(1);
-            }
 
-            char header[100];
-            sprintf(header, "%s\n", dir_entry->d_name);
-            fwrite(header, sizeof(char), strlen(header), tar_file);
+            // printf("file path %d: %s\n", file_count, file_path);
+            // file_count++;
+            sprintf(complete_files_path, "%s%s%s", complete_files_path, file_path, " ");
+            // system("tar -cvf my_archive.tar file1.txt file2.txt");
 
-            char size_str[20];
-            sprintf(size_str, "%ld\n", file_stats.st_size);
-            fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
+            // FILE *file = fopen(file_path, "rb");
+            // if (!file)
+            // {
+            //     perror("Error opening file");
+            //     exit(1);
+            // }
 
-            char buffer[4096];
-            size_t read_bytes;
-            while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
-            {
-                fwrite(buffer, 1, read_bytes, tar_file);
-            }
+            // char header[100];
+            // sprintf(header, "%s\n", dir_entry->d_name);
+            // fwrite(header, sizeof(char), strlen(header), tar_file);
 
-            fclose(file);
+            // char size_str[20];
+            // sprintf(size_str, "%ld\n", file_stats.st_size);
+            // fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
+
+            // char buffer[4096];
+            // size_t read_bytes;
+            // while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
+            // {
+            //     fwrite(buffer, 1, read_bytes, tar_file);
+            // }
+
+            // fclose(file);
         }
     }
-
-    closedir(root_dir);
-    fclose(tar_file);
+    sprintf(command, "%s%s%s", "tar -czvf temp.tar.gz -P", " ", complete_files_path);
+    printf("complete file paths: %s\n", complete_files_path);
+    printf("command: %s\n", command);
+    system(command);
+    // closedir(root_dir);
+    // fclose(tar_file);
 }
 
 void unzip_tar_file(char *tar_filename)

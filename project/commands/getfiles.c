@@ -16,15 +16,19 @@ If none of the specified files are found, the program prints "No file found" and
 #include <unistd.h>
 
 #define MAX_PATH_LENGTH 4096
+#define MAX_COMMAND_LENGHT 10000
 
 void create_tar_file(char *tar_filename, char **files, int num_files)
 {
-    FILE *tar_file = fopen(tar_filename, "wb");
-    if (!tar_file)
-    {
-        perror("Error creating tar file");
-        exit(1);
-    }
+    char complete_files_path[10000];
+    char command[MAX_COMMAND_LENGHT];
+    char file_path[MAX_PATH_LENGTH];
+    // FILE *tar_file = fopen(tar_filename, "wb");
+    // if (!tar_file)
+    // {
+    //     perror("Error creating tar file");
+    //     exit(1);
+    // }
 
     DIR *root_dir = opendir(getenv("HOME"));
     if (!root_dir)
@@ -34,7 +38,6 @@ void create_tar_file(char *tar_filename, char **files, int num_files)
     }
 
     struct dirent *dir_entry;
-    char file_path[MAX_PATH_LENGTH];
     int found_files = 0;
     for (int i = 0; i < num_files; i++)
     {
@@ -51,47 +54,55 @@ void create_tar_file(char *tar_filename, char **files, int num_files)
             {
                 found_files++;
 
-                struct stat file_stats;
-                if (stat(file_path, &file_stats) == -1)
-                {
-                    perror("Error getting file stats");
-                    exit(1);
-                }
+                // struct stat file_stats;
+                // if (stat(file_path, &file_stats) == -1)
+                // {
+                //     perror("Error getting file stats");
+                //     exit(1);
+                // }
 
-                FILE *file = fopen(file_path, "rb");
-                if (!file)
-                {
-                    perror("Error opening file");
-                    exit(1);
-                }
+                // FILE *file = fopen(file_path, "rb");
+                // if (!file)
+                // {
+                //     perror("Error opening file");
+                //     exit(1);
+                // }
 
-                char header[100];
-                sprintf(header, "%s\n", dir_entry->d_name);
-                fwrite(header, sizeof(char), strlen(header), tar_file);
+                sprintf(complete_files_path, "%s%s%s", complete_files_path, file_path, " ");
+                // char header[100];
+                // sprintf(header, "%s\n", dir_entry->d_name);
+                // fwrite(header, sizeof(char), strlen(header), tar_file);
 
-                char size_str[20];
-                sprintf(size_str, "%ld\n", file_stats.st_size);
-                fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
+                // char size_str[20];
+                // sprintf(size_str, "%ld\n", file_stats.st_size);
+                // fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
 
-                char buffer[4096];
-                size_t read_bytes;
-                while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
-                {
-                    fwrite(buffer, 1, read_bytes, tar_file);
-                }
+                // char buffer[4096];
+                // size_t read_bytes;
+                // while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
+                // {
+                //     fwrite(buffer, 1, read_bytes, tar_file);
+                // }
 
-                fclose(file);
+                // fclose(file);
             }
         }
     }
 
-    closedir(root_dir);
-    fclose(tar_file);
+    // closedir(root_dir);
+    // fclose(tar_file);
 
     if (found_files == 0)
     {
         printf("No file found\n");
         exit(0);
+    }
+    else
+    {
+        sprintf(command, "%s%s%s", "tar -czvf temp.tar.gz -P", " ", complete_files_path);
+        printf("complete file paths: %s\n", complete_files_path);
+        printf("command: %s\n", command);
+        system(command);
     }
 }
 
@@ -130,7 +141,11 @@ int main(int argc, char *argv[])
     char tar_filename[] = "temp.tar.gz";
     create_tar_file(tar_filename, files, num_files);
 
-    if (argc == 8 && strcmp(argv[7], "-u") == 0)
+    // if (argc == 8 && strcmp(argv[7], "-u") == 0)
+    // {
+    //     unzip_tar_file(tar_filename);
+    // }
+    if (strcmp(argv[argc - 1], "-u") == 0)
     {
         unzip_tar_file(tar_filename);
     }
