@@ -139,7 +139,7 @@ void unzip_tar_file(char *tar_filename)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2 || argc > 9 || (argc == 3 && strcmp(argv[2], "-u") == 0))
+    if (argc < 2 || argc > 9 || (argc == 2 && strcmp(argv[1], "-u") == 0))
     {
         printf("Usage: %s extension1 [extension2 ... extension6] [-u]\n", argv[0]);
         return 0;
