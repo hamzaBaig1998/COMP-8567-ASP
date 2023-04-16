@@ -21,7 +21,7 @@
 #include <time.h>
 
 #define SERVER_IP "127.0.0.1" // IP address of the server
-#define SERVER_PORT 8081      // Port number of the mirror server
+#define SERVER_PORT 8083      // Port number of the mirror server
 #define BUFFER_SIZE 1024      // Buffer size for receiving data from clients
 
 #define MAX_PATH_LENGTH 4096

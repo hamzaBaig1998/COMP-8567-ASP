@@ -15,6 +15,7 @@
 #define MAX_CLIENTS 12   // Maximum number of clients (including server and mirror)
 #define BUFFER_SIZE 1024 // Buffer size for receiving data from clients
 
+#define SERVER_PORT 8082
 #define MAX_PATH_LENGTH 4096
 #define MAX_COMMAND_LENGHT 10000
 
@@ -517,38 +518,73 @@ void breakCommands(char *output[50], char *rwCmd)
 void processclient(int client_socket)
 {
 
-    fp = fopen("teat.zip", "rb");
-    if (fp == NULL)
-    {
-        printf("File not found.\n");
-        // break;
-    }
+    // fp = fopen("teat.zip", "rb");
+    // if (fp == NULL)
+    // {
+    //     printf("File not found.\n");
+    //     // break;
+    // }
 
     char buffer[BUFFER_SIZE] = "In processclient()";
-    send(client_socket, buffer, 18, 0);
-    bzero(buffer, BUFFER_SIZE);
+    // send(client_socket, buffer, 18, 0);
+    // bzero(buffer, BUFFER_SIZE);
     // wait for for client
+    // while (1)
+    // {
+    //     int bytes_read = recv(client_socket, buffer, sizeof(buffer), 0);
+    //     printf("Bytes: %d", bytes_read);
+    //     if (bytes_read <= 0)
+    //     {
+    //         perror("Error: No bytes received from client");
+    //         break; // Connection closed or error
+    //     }
+    //     printf("Bytes: %d", bytes_read);
+    //     if (send(client_socket, buffer, sizeof(buffer), 0) == -1)
+    //     {
+    //         perror("Error: Failed to send data to client");
+    //         exit(1);
+    //     }
+    //     // send(client_socket, fileBuffer, bytesRead, 0);
+    //     // Process command
+    //     // Example: echo back the received command
+    //     // printf("Client command received from server: %s\n", buffer);
+    //     // // sending commend to client
+    //     // size_t bytesRead = fread(fileBuffer, 1, sizeof(fileBuffer), fp);
+    //     // if (bytesRead == 0)
+    //     // {
+    //     //     break;
+    //     // }
+    //     // send(client_socket, fileBuffer, bytesRead, 0);
+    //     // bzero(buffer, BUFFER_SIZE);
+    // }
+    // Loop to receive and send messages
+    char client_message[2000];
     while (1)
     {
-        // int bytes_read = recv(client_socket, buffer, sizeof(buffer), 0);
-        // if (bytes_read <= 0) {
-        //     perror("Error: No bytes received from client");
-        //     break; // Connection closed or error
-        // }
-        // Process command
-        // Example: echo back the received command
-        printf("Client command received from server: %s\n", buffer);
-        // sending commend to client
-        size_t bytesRead = fread(fileBuffer, 1, sizeof(fileBuffer), fp);
-        if (bytesRead == 0)
+        // Receive message from client
+        int read_size = recv(client_socket, client_message, 2000, 0);
+        if (read_size == 0)
         {
+            printf("Client disconnected\n");
             break;
         }
-        send(client_socket, fileBuffer, bytesRead, 0);
-        bzero(buffer, BUFFER_SIZE);
+        // Add null terminator to message
+        client_message[read_size] = '\0';
+        printf("Client message: %s", client_message);
+
+        // Check for exit command
+        if (strcmp(client_message, "exit\n") == 0)
+        {
+            printf("Client requested to exit\n");
+            break;
+        }
+
+        // Send message back to client
+        write(client_socket, "Server message: ", strlen("Server message: "));
+        write(client_socket, client_message, strlen(client_message));
     }
     close(client_socket);
-    fclose(fp);
+    // fclose(fp);
 }
 /*
 void handle_mirror(int client_socket) {
@@ -649,7 +685,7 @@ int main()
     // Configure server address
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = inet_addr(SERVER_IP); // INADDR_ANY;
-    server_addr.sin_port = htons(8080);                 // Port number for server
+    server_addr.sin_port = htons(SERVER_PORT);          // Port number for server
 
     // Bind the server address to the socket
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
