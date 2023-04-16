@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc - 1; i++)
     {
         extensions[i - 1] = argv[i];
-        printf("extension %d: %s\n", i, argv[i]);
+        // printf("extension %d: %s\n", i, argv[i]);
     }
     int num_extensions = argc - 2;
 
