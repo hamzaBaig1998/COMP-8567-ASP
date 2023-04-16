@@ -1,39 +1,39 @@
-/*
-
-The search_file function recursively searches for the specified filename in the directory tree rooted at path.
-If the file is found, it prints the filename, size (in bytes), and date created to the console.
-If the file is not found, it returns without printing anything.
-
-In the main function, the program checks that the correct number of arguments have been supplied,
-and then calls search_file with the specified filename and the user's home directory (getenv("HOME")).
-If the file is not found, it prints "File not found" to the console.
-
-In this version of the code, the search_file function now takes a pointer to an int variable found,
-which is used to keep track of whether the file has been found or not. If the file is found,
-search_file sets *found to 1 and breaks out of the loop. The main function now checks the value
-of found after the search is complete, and prints "File not found" only if found is 0.
-
-To compile this program, you can use a command like:
-
-gcc -o findfile findfile.c
-Then you can run the program with a command like:
-
-./findfile sample.txt
-
-
-*/
-
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <time.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 256
+#define MAX_WORDS 100
+#define MAX_WORD_LEN 50
 
-void search_file(char *filename, char *path, int *found)
+void findfile(char *str, int *found)
 {
+    char path[MAX_WORD_LEN];
+    char filename[MAX_WORD_LEN];
+    char *words[MAX_WORDS];
+    int word_count = 0;
+
+    // Split the string into words using space as a delimiter
+    char *token = strtok(str, " ");
+    while (token != NULL && word_count < MAX_WORDS)
+    {
+        words[word_count] = token;
+        word_count++;
+        token = strtok(NULL, " ");
+    }
+    if (word_count != 2)
+    {
+        printf("Error: expected two arguments (filename and path)\n");
+        return;
+    }
+
+    // Copy the filename and path from the array of words
+    strcpy(filename, words[0]);
+    strcpy(path, words[1]);
+
     DIR *dir;
     struct dirent *dp;
     struct stat st;
@@ -72,7 +72,7 @@ void search_file(char *filename, char *path, int *found)
             // Construct the full path to the subdirectory
             sprintf(buf, "%s/%s", path, dp->d_name);
             // Recursively search the subdirectory
-            search_file(filename, buf, found);
+            findfile(str, found);
             // If the file is found, break out of the loop
             if (*found)
             {
@@ -85,24 +85,20 @@ void search_file(char *filename, char *path, int *found)
     closedir(dir);
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-    // Check that the correct number of arguments have been supplied
-    if (argc != 2)
+    char str[MAX_WORDS * MAX_WORD_LEN];
+    printf("Enter a filename and path separated by a space: ");
+    fgets(str, sizeof(str), stdin);
+    int len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n')
     {
-        fprintf(stderr, "Usage: %s filename\n", argv[0]);
-        exit(1);
+        str[len - 1] = '\0'; // remove the newline character
     }
 
-    // Get the target filename and the home directory
-    char *filename = argv[1];
-    char *path = getenv("HOME");
-
-    // Search for the file
     int found = 0;
-    search_file(filename, path, &found);
+    findfile(str, &found);
 
-    // If the file was not found, print an error message
     if (!found)
     {
         printf("File not found\n");
