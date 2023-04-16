@@ -2,70 +2,71 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
-#include <errno.h>
+#include <fcntl.h>
+#define O_BINARY 0
 
-int main(int argc, char *argv[])
-{
+#define SERVER_IP "127.0.0.1" // IP address of the server
+#define SERVER_PORT 8081 // Port number of the server
+#define BUFFER_SIZE 1024 // Buffer size for sending data to server
+FILE *fp;
+
+int main() {
     int client_socket;
-    struct sockaddr_in server_address;
+    struct sockaddr_in server_addr;
+    char buffer[BUFFER_SIZE];
+    ssize_t  bytes_received;
 
-    // Create a TCP socket
+    // Create a socket
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1)
-    {
-        perror("socket");
+    if (client_socket == -1) {
+        perror("Error: Failed to create socket");
+        exit(1);
+    }
+
+   if ((fp = open("file.zip", O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0777)) < 0) {
+        perror("open failed");
         exit(EXIT_FAILURE);
     }
+
+
+    // Configure server address
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    server_addr.sin_port = htons(SERVER_PORT);
 
     // Connect to the server
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = inet_addr("127.0.0.1"); // Replace with the server IP address
-    server_address.sin_port = htons(12345);                  // Replace with the server port number
-    if (connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1)
-    {
-        perror("connect");
-        close(client_socket);
-        exit(EXIT_FAILURE);
+    if (connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+        perror("Error: Failed to connect to server");
+        exit(1);
     }
 
-    // Send a message to the server
-    char message[] = "Hello, server!";
-    if (send(client_socket, message, strlen(message), 0) == -1)
-    {
-        perror("send");
-        close(client_socket);
-        exit(EXIT_FAILURE);
+    printf("\nConnected to server: %s:%d\n", SERVER_IP, SERVER_PORT);
+
+    // Send data to the server
+    sprintf(buffer, "Hello from client");
+    if (send(client_socket, buffer, strlen(buffer), 0) == -1) {
+        perror("Error: Failed to send data to server");
+        exit(1);
     }
 
-    // Receive a response from the server
-    char response[1024];
-    int bytes_received = recv(client_socket, response, sizeof(response), 0);
-    if (bytes_received == -1)
-    {
-        if (errno == ECONNRESET)
-        {
-            printf("Connection reset by peer\n");
+    // Receive data from the server
+    bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
+    if (bytes_received == -1) {
+        perror("Error: Failed to receive data from server");
+        exit(1);
+    }
+
+    while (( bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0)) > 0) {
+        if (write(fp, buffer, bytes_received) != bytes_received) {
+            perror("Error writing to file");
+            exit(1);
         }
-        else
-        {
-            perror("recv");
-        }
-        close(client_socket);
-        exit(EXIT_FAILURE);
     }
-    else if (bytes_received == 0)
-    {
-        printf("Connection closed by peer\n");
-        close(client_socket);
-        exit(EXIT_SUCCESS);
-    }
-    response[bytes_received] = '\0';
-    printf("Server response: %s\n", response);
 
-    // Close the socket
+    printf("Received data from server: %s\n", buffer);
+
+    // Close the client socket
     close(client_socket);
 
     return 0;
