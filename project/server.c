@@ -1,3 +1,4 @@
+// github: https://github.com/hamzaBaig1998/COMP-8567-ASP/tree/main/project
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -426,6 +427,93 @@ void gettarz(char *tar_filename, char **extensions, int num_extensions)
 
 // commands end here
 
+// commandshandler
+// break commands
+void breakCommands(char *output[50], char *rwCmd)
+{
+    int len = 0;
+    char *ptr = strtok(rwCmd, " ");
+    while (1)
+    {
+        if (ptr == NULL)
+        {
+            output[len] = NULL;
+            len++;
+            break;
+        }
+        if (strcmp(ptr, "\n") == 0)
+        {
+            continue;
+        }
+        output[len] = ptr;
+        len++;
+        ptr = strtok(NULL, " ");
+    }
+
+    if (len < 1 || len > 9)
+    {
+        printf("output arguments should be greater than equal to 1 and less than equal to 8\n");
+        exit(10);
+    }
+}
+// int split_string(char *str, char **words)
+// {
+//     int word_count = 0;
+//     char *token = strtok(str, " ");
+//     while (token != NULL && word_count < MAX_WORDS)
+//     {
+//         words[word_count] = malloc(strlen(token) + 1);
+//         strcpy(words[word_count], token);
+//         word_count++;
+//         token = strtok(NULL, " ");
+//     }
+//     return word_count;
+// }
+
+// command recieved handler
+// void commandHandle(char *message, char *result)
+// {
+//     char *command[10];
+//     split_string(command, message);
+
+//     if (strcmp(command[0], "findfile") == 0)
+//     {
+
+//         findfile();
+//         return;
+//     }
+
+//     if (strcmp(command[0], "sgetfiles") == 0)
+//     {
+//         sgetfiles();
+//         return;
+//     }
+
+//     if (strcmp(command[0], "dgetfiles") == 0)
+//     {
+//         dgetfiles();
+//         return;
+//     }
+
+//     if (strcmp(command[0], "getfiles") == 0)
+//     {
+//         getfiles();
+//         return;
+//     }
+
+//     if (strcmp(command[0], "gettargz") == 0)
+//     {
+//         gettarz();
+//         return;
+//     }
+
+//     if (strcmp(command[0], "quit") == 0)
+//     {
+//         strcpy(result, "Exit");
+//         return;
+//     }
+//     strcpy(result, "Bad Request!, Command not supported by the server\n");
+// }
 void processclient(int client_socket)
 {
 
