@@ -1,0 +1,17 @@
+2023-01-20 19:47:37.729 [info] Extension host with pid 740 started
+2023-01-20 19:47:37.788 [info] Lock '/home/hamza/.vscode-server/data/User/workspaceStorage/930dcb6990c232a12128e8aa22691135/vscode.lock': Lock acquired.
+2023-01-20 19:47:37.961 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*'
+2023-01-20 19:47:38.067 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2023-01-20 19:47:38.213 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2023-01-20 19:47:38.214 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onStartupFinished'
+2023-01-20 19:47:38.214 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2023-01-20 19:47:38.215 [info] Eager extensions activated
+2023-01-20 19:47:38.856 [info] ExtensionService#_doActivateExtension vscode.git, startup: false, activationEvent: 'api', root cause: vscode.github
+2023-01-20 19:47:39.284 [info] ExtensionService#_doActivateExtension vscode.configuration-editing, startup: false, activationEvent: 'onLanguage:jsonc'
+2023-01-20 19:47:39.285 [info] ExtensionService#_doActivateExtension vscode.json-language-features, startup: false, activationEvent: 'onLanguage:jsonc'
+2023-01-20 19:47:39.286 [info] ExtensionService#_doActivateExtension vscode.typescript-language-features, startup: false, activationEvent: 'onLanguage:jsonc'
+2023-01-20 19:48:17.931 [info] ExtensionService#_doActivateExtension ms-vscode.cpptools, startup: false, activationEvent: 'onLanguage:c'
+2023-01-20 19:48:35.739 [warning] DiagnosticCollection with name 'C/C++' does already exist.
+2023-01-20 19:50:02.705 [info] Extension host terminating: received terminate message from renderer
+2023-01-20 19:50:02.705 [info] Lock '/home/hamza/.vscode-server/data/User/workspaceStorage/930dcb6990c232a12128e8aa22691135/vscode.lock': Marking the lockfile as scheduled to be released in 6000 ms.
+2023-01-20 19:50:02.801 [info] Extension host with pid 740 exiting with code 0

@@ -1,13 +1,3 @@
-/*
-
-This implementation uses the opendir, readdir, and stat functions to search the directory
-tree rooted at the user's home directory for the specified files. It then creates a tar
-file containing any matching files, and optionally unzips it in the current working directory
-if the -u flag is present. The program takes at least one required argument, file1,
-and up to six additional optional arguments file2 through file6, followed by an optional -u flag.
-If none of the specified files are found, the program prints "No file found" and exits.
-
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,81 +8,55 @@ If none of the specified files are found, the program prints "No file found" and
 #define MAX_PATH_LENGTH 4096
 #define MAX_COMMAND_LENGHT 10000
 
-void create_tar_file(char *tar_filename, char **files, int num_files)
+void search_directory(char *dir_path, char **files, int num_files, char *complete_files_path)
 {
-    char complete_files_path[10000];
-    char command[MAX_COMMAND_LENGHT];
-    char file_path[MAX_PATH_LENGTH];
-    // FILE *tar_file = fopen(tar_filename, "wb");
-    // if (!tar_file)
-    // {
-    //     perror("Error creating tar file");
-    //     exit(1);
-    // }
-
-    DIR *root_dir = opendir(getenv("HOME"));
-    if (!root_dir)
+    DIR *dir = opendir(dir_path);
+    if (!dir)
     {
-        perror("Error opening root directory");
+        perror("Error opening directory");
         exit(1);
     }
 
-    struct dirent *dir_entry;
-    int found_files = 0;
-    for (int i = 0; i < num_files; i++)
+    struct dirent *entry;
+    char file_path[MAX_PATH_LENGTH];
+    while ((entry = readdir(dir)) != NULL)
     {
-        rewinddir(root_dir);
-        while ((dir_entry = readdir(root_dir)) != NULL)
+        if (entry->d_type == DT_DIR)
         {
-            if (dir_entry->d_type != DT_REG)
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             {
                 continue;
             }
-
-            sprintf(file_path, "%s/%s", getenv("HOME"), dir_entry->d_name);
-            if (strcmp(files[i], dir_entry->d_name) == 0)
+            sprintf(file_path, "%s/%s", dir_path, entry->d_name);
+            search_directory(file_path, files, num_files, complete_files_path);
+        }
+        else if (entry->d_type == DT_REG)
+        {
+            for (int i = 0; i < num_files; i++)
             {
-                found_files++;
-
-                // struct stat file_stats;
-                // if (stat(file_path, &file_stats) == -1)
-                // {
-                //     perror("Error getting file stats");
-                //     exit(1);
-                // }
-
-                // FILE *file = fopen(file_path, "rb");
-                // if (!file)
-                // {
-                //     perror("Error opening file");
-                //     exit(1);
-                // }
-
-                sprintf(complete_files_path, "%s%s%s", complete_files_path, file_path, " ");
-                // char header[100];
-                // sprintf(header, "%s\n", dir_entry->d_name);
-                // fwrite(header, sizeof(char), strlen(header), tar_file);
-
-                // char size_str[20];
-                // sprintf(size_str, "%ld\n", file_stats.st_size);
-                // fwrite(size_str, sizeof(char), strlen(size_str), tar_file);
-
-                // char buffer[4096];
-                // size_t read_bytes;
-                // while ((read_bytes = fread(buffer, 1, sizeof(buffer), file)) > 0)
-                // {
-                //     fwrite(buffer, 1, read_bytes, tar_file);
-                // }
-
-                // fclose(file);
+                // printf("searching file::::%s", files[i]);
+                if (strcmp(files[i], entry->d_name) == 0)
+                {
+                    char file_path[MAX_PATH_LENGTH];
+                    sprintf(file_path, "%s/%s", dir_path, entry->d_name);
+                    sprintf(complete_files_path, "%s%s%s", complete_files_path, file_path, " ");
+                }
             }
         }
     }
 
-    // closedir(root_dir);
-    // fclose(tar_file);
+    closedir(dir);
+}
 
-    if (found_files == 0)
+void create_tar_file(char *tar_filename, char **files, int num_files)
+{
+    char complete_files_path[MAX_COMMAND_LENGHT] = ""; // Initialize to empty string
+    char command[MAX_COMMAND_LENGHT];
+    char file_path[MAX_PATH_LENGTH];
+
+    search_directory(getenv("HOME"), files, num_files, complete_files_path);
+
+    if (strlen(complete_files_path) == 0)
     {
         printf("No file found\n");
         exit(0);
@@ -127,28 +91,28 @@ int main(int argc, char *argv[])
     }
 
     char **files = malloc((argc - 1) * sizeof(char *));
-    for (int i = 1; i < argc - 1; i++)
+    for (int i = 1; i < argc; i++)
     {
         files[i - 1] = argv[i];
     }
-    int num_files = argc - 2;
-
-    if (argc == 8 && strcmp(argv[7], "-u") == 0)
-    {
-        num_files--;
-    }
-
-    char tar_filename[] = "temp.tar.gz";
-    create_tar_file(tar_filename, files, num_files);
+    int num_files = argc - 1;
 
     // if (argc == 8 && strcmp(argv[7], "-u") == 0)
     // {
-    //     unzip_tar_file(tar_filename);
+    //     num_files--;
     // }
+    char tar_filename[] = "temp.tar.gz";
     if (strcmp(argv[argc - 1], "-u") == 0)
     {
+        num_files--;
         unzip_tar_file(tar_filename);
     }
+    for (int i = 0; i < num_files; i++)
+    {
+        printf("file:[%d]: %s\n", i, files[i]);
+    }
+
+    create_tar_file(tar_filename, files, num_files);
 
     free(files);
     return 0;

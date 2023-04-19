@@ -1,0 +1,21 @@
+2023-01-20 19:50:07.683 [info] Extension host agent started.
+2023-01-20 19:50:07.956 [info] [127.0.0.1][fbf638ec][ManagementConnection] New connection established.
+2023-01-20 19:50:08.871 [info] [127.0.0.1][ce4a9380][ExtensionHostConnection] New connection established.
+2023-01-20 19:50:08.885 [info] [127.0.0.1][ce4a9380][ExtensionHostConnection] <973> Launched Extension Host Process.
+2023-01-20 20:59:26.214 [warning] No ptyHost heartbeat after 6 seconds
+2023-01-20 21:14:26.634 [info] [127.0.0.1][fbf638ec][ManagementConnection] The client has reconnected.
+2023-01-20 21:14:27.095 [info] [127.0.0.1][ce4a9380][ExtensionHostConnection] The client has reconnected.
+2023-01-21 10:53:25.449 [warning] No ptyHost heartbeat after 6 seconds
+2023-01-21 10:54:00.141 [info] [127.0.0.1][fbf638ec][ManagementConnection] The client has reconnected.
+2023-01-21 10:54:03.620 [info] [127.0.0.1][ce4a9380][ExtensionHostConnection] The client has reconnected.
+2023-01-21 12:03:53.567 [warning] No ptyHost heartbeat after 6 seconds
+2023-01-21 13:27:17.142 [info] [127.0.0.1][ce4a9380][ExtensionHostConnection] The client has reconnected.
+2023-01-21 13:27:17.737 [info] [127.0.0.1][fbf638ec][ManagementConnection] The client has reconnected.
+2023-01-21 13:59:09.572 [info] Getting Manifest... danielsanmedium.dscodegpt
+2023-01-21 13:59:09.773 [info] Installing extension: danielsanmedium.dscodegpt
+2023-01-21 13:59:11.393 [info] Extracted extension to /home/hamza/.vscode-server/extensions/.895caf6f-8ec5-4f37-bdd2-3b5a90145207: danielsanmedium.dscodegpt
+2023-01-21 13:59:11.411 [info] Renamed to /home/hamza/.vscode-server/extensions/danielsanmedium.dscodegpt-1.0.8
+2023-01-21 13:59:11.414 [info] Extracting completed. danielsanmedium.dscodegpt
+2023-01-21 13:59:11.438 [info] Extension installed successfully: danielsanmedium.dscodegpt
+2023-01-21 19:56:31.640 [info] [127.0.0.1][fbf638ec][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2023-01-21 19:56:31.975 [info] [127.0.0.1][ce4a9380][ExtensionHostConnection] <973> Extension Host Process exited with code: 0, signal: null.

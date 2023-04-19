@@ -1,0 +1,248 @@
+{
+	"name": "dscodegpt",
+	"displayName": "Code GPT",
+	"publisher": "DanielSanMedium",
+	"description": "Use the Official OpenAI API inside VSCode ",
+	"license": "MIT",
+	"icon": "logo_codegpt.png",
+	"version": "1.0.8",
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"categories": [
+		"Data Science",
+		"Machine Learning",
+		"Programming Languages"
+	],
+	"keywords": [
+		"chatgpt",
+		"codegpt",
+		"copilot",
+		"openai",
+		"gpt",
+		"gpt-3",
+		"ai",
+		"codex",
+		"gpt3",
+		"find bugs",
+		"document",
+		"explain",
+		"refactor",
+		"cohere",
+		"ai21"
+	],
+	"activationEvents": [
+		"onCommand:codegpt.askCodeGPT"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"configuration": {
+			"title": "CodeGPT",
+			"properties": {
+				"CodeGPT.apiKey": {
+					"type": "string",
+					"default": "OpenAI",
+					"markdownDescription": "To enter your [API Key](https://beta.openai.com/account/api-keys) press cmd+shift+p and search for 'CodeGPT: Set API KEY'",
+					"enum": [
+						"OpenAI"
+					]
+				},
+				"CodeGPT.model": {
+					"type": "string",
+					"default": "text-davinci-003",
+					"markdownDescription": "The [model](https://www.codegpt.co/docs/tutorial-basics/configuration#model) to use",
+					"enum": [
+						"code-cushman-001",
+						"code-davinci-002",
+						"text-davinci-003",
+						"text-curie-001",
+						"text-babbage-001",
+						"text-ada-001",
+						"davinci-instruct-beta"
+					],
+					"enumDescriptions": [
+						"code-cushman-001: Codex - OpenAI",
+						"code-davinci-002: Codex - OpenAI",
+						"text-davinci-003: GPT-3 (Recommended) - OpenAI",
+						"text-curie-001: GPT-3 - OpenAI",
+						"text-babbage-001: GPT-3 - OpenAI",
+						"text-ada-001: GPT-3 - OpenAI",
+						"davinci-instruct-beta - OpenAI"
+					]
+				},
+				"CodeGPT.maxTokens": {
+					"type": "number",
+					"default": 500,
+					"minimum": 1,
+					"markdownDescription": "The maximum number of [tokens](https://www.codegpt.co/docs/tutorial-basics/configuration#max-token) for each request"
+				},
+				"CodeGPT.temperature": {
+					"type": "number",
+					"default": 0.3,
+					"minimum": 0,
+					"maximum": 1,
+					"markdownDescription": "The [temperature](https://www.codegpt.co/docs/tutorial-basics/configuration#temperature). Must be between 0 and 1"
+				},
+				"CodeGPT.query.language": {
+					"type": "string",
+					"default": "English",
+					"markdownDescription": "Select the query language",
+					"enum": [
+						"Arabic",
+						"Chinese",
+						"English",
+						"French",
+						"German",
+						"Hebrew",
+						"Italian",
+						"Japanese",
+						"Portuguese",
+						"Russian",
+						"Spanish",
+						"Thai",
+						"Ukrainian"
+					]
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "codegpt.askCodeGPT",
+				"title": "Ask CodeGPT"
+			},
+			{
+				"command": "codegpt.explainCodeGPT",
+				"title": "Explain CodeGPT"
+			},
+			{
+				"command": "codegpt.refactorCodeGPT",
+				"title": "Refactor CodeGPT"
+			},
+			{
+				"command": "codegpt.documentCodeGPT",
+				"title": "Document CodeGPT"
+			},
+			{
+				"command": "codegpt.findProblemsCodeGPT",
+				"title": "Find Problems CodeGPT"
+			},
+			{
+				"command": "codegpt.unitTestCodeGPT",
+				"title": "Unit Test CodeGPT"
+			},
+			{
+				"command": "codegpt.getCode",
+				"title": "Get Code from comments"
+			},
+			{
+				"command": "codegpt.setApiKeyCodeGPT",
+				"title": "CodeGPT: Set API KEY"
+			},
+			{
+				"command": "codegpt.removeApiKeyCodeGPT",
+				"title": "CodeGPT: Remove API KEY"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "codegpt.getCode",
+				"key": "ctrl+shift+i",
+				"mac": "cmd+shift+i"
+			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"command": "codegpt.askCodeGPT",
+					"when": "editorTextFocus",
+					"group": "codegpt-menu-group@1"
+				},
+				{
+					"command": "codegpt.explainCodeGPT",
+					"when": "editorHasSelection",
+					"group": "codegpt-menu-group@2"
+				},
+				{
+					"command": "codegpt.refactorCodeGPT",
+					"when": "editorHasSelection",
+					"group": "codegpt-menu-group@3"
+				},
+				{
+					"command": "codegpt.documentCodeGPT",
+					"when": "editorHasSelection",
+					"group": "codegpt-menu-group@4"
+				},
+				{
+					"command": "codegpt.findProblemsCodeGPT",
+					"when": "editorHasSelection",
+					"group": "codegpt-menu-group@5"
+				},
+				{
+					"command": "codegpt.unitTestCodeGPT",
+					"when": "editorHasSelection",
+					"group": "codegpt-menu-group@5"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "codegpt.askCodeGPT"
+				},
+				{
+					"command": "codegpt.explainCodeGPT",
+					"when": "editorHasSelection"
+				},
+				{
+					"command": "codegpt.refactorCodeGPT",
+					"when": "editorHasSelection"
+				},
+				{
+					"command": "codegpt.documentCodeGPT",
+					"when": "editorHasSelection"
+				},
+				{
+					"command": "codegpt.findProblemsCodeGPT",
+					"when": "editorHasSelection"
+				},
+				{
+					"command": "codegpt.unitTestCodeGPT",
+					"when": "editorHasSelection"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^8.0.0",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "16.x",
+		"@types/vscode": "^1.74.0",
+		"@vscode/test-electron": "^2.2.0",
+		"eslint": "^8.28.0",
+		"glob": "^8.0.3",
+		"mocha": "^10.1.0",
+		"typescript": "^4.9.3"
+	},
+	"dependencies": {
+		"cohere-ai": "^5.0.2",
+		"openai": "^3.1.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/davila7/codegpt"
+	},
+	"__metadata": {
+		"id": "eb8db386-b7d8-4961-8048-b188d778a1e9",
+		"publisherId": "32ffcc9f-7414-49c5-8252-14fb6374a4f1",
+		"publisherDisplayName": "Code GPT",
+		"targetPlatform": "undefined",
+		"isApplicationScoped": false,
+		"updated": false,
+		"isPreReleaseVersion": false,
+		"installedTimestamp": 1674327550161,
+		"preRelease": false
+	}
+}
