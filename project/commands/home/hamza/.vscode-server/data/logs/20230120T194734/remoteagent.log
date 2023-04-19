@@ -1,0 +1,38 @@
+2023-01-20 19:47:34.194 [info] Extension host agent started.
+2023-01-20 19:47:34.262 [info] Started initializing default profile extensions in extensions installation folder. file:///home/hamza/.vscode-server/extensions
+2023-01-20 19:47:34.292 [info] Completed initializing default profile extensions in extensions installation folder. file:///home/hamza/.vscode-server/extensions
+2023-01-20 19:47:34.819 [info] [127.0.0.1][5e50e934][ManagementConnection] New connection established.
+2023-01-20 19:47:36.093 [info] [127.0.0.1][e1ffd4d7][ExtensionHostConnection] New connection established.
+2023-01-20 19:47:36.103 [info] [127.0.0.1][e1ffd4d7][ExtensionHostConnection] <740> Launched Extension Host Process.
+2023-01-20 19:47:59.773 [info] Getting Manifest... ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:00.131 [info] Installing extension: ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:00.877 [info] Getting Manifest... ms-vscode.cpptools
+2023-01-20 19:48:01.084 [info] Getting Manifest... ms-vscode.cmake-tools
+2023-01-20 19:48:01.371 [info] Getting Manifest... twxs.cmake
+2023-01-20 19:48:01.540 [info] Getting Manifest... ms-vscode.cpptools-themes
+2023-01-20 19:48:01.788 [info] Installing extension: ms-vscode.cpptools ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:01.789 [info] Installing extension: ms-vscode.cmake-tools ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:01.790 [info] Installing extension: twxs.cmake ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:01.790 [info] Installing extension: ms-vscode.cpptools-themes ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:03.033 [info] Extracted extension to /home/hamza/.vscode-server/extensions/.4facf7d9-7a1d-4c04-af88-3569161df11e: ms-vscode.cpptools-themes
+2023-01-20 19:48:03.049 [info] Renamed to /home/hamza/.vscode-server/extensions/ms-vscode.cpptools-themes-2.0.0
+2023-01-20 19:48:03.052 [info] Extracting completed. ms-vscode.cpptools-themes
+2023-01-20 19:48:03.252 [info] Extracted extension to /home/hamza/.vscode-server/extensions/.5fe411d3-b007-48cf-afe2-bc2c0e7f19e6: ms-vscode.cmake-tools
+2023-01-20 19:48:03.266 [info] Renamed to /home/hamza/.vscode-server/extensions/ms-vscode.cmake-tools-1.13.40
+2023-01-20 19:48:03.272 [info] Extracting completed. ms-vscode.cmake-tools
+2023-01-20 19:48:05.977 [info] Extracted extension to /home/hamza/.vscode-server/extensions/.cd78f6ee-53c9-4d04-ad5d-1e4b88c80a5e: twxs.cmake
+2023-01-20 19:48:05.994 [info] Renamed to /home/hamza/.vscode-server/extensions/twxs.cmake-0.0.17
+2023-01-20 19:48:05.999 [info] Extracting completed. twxs.cmake
+2023-01-20 19:48:16.545 [info] Extracted extension to /home/hamza/.vscode-server/extensions/.ffa0c473-f691-453e-bf35-14ee70c5144e: ms-vscode.cpptools
+2023-01-20 19:48:16.558 [info] Renamed to /home/hamza/.vscode-server/extensions/ms-vscode.cpptools-1.13.9-linux-x64
+2023-01-20 19:48:16.569 [info] Extracting completed. ms-vscode.cpptools
+2023-01-20 19:48:17.046 [info] Extracted extension to /home/hamza/.vscode-server/extensions/.29d90ac6-2b7f-4851-a5d2-c861c8075532: ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:17.058 [info] Renamed to /home/hamza/.vscode-server/extensions/ms-vscode.cpptools-extension-pack-1.3.0
+2023-01-20 19:48:17.060 [info] Extracting completed. ms-vscode.cpptools-extension-pack
+2023-01-20 19:48:17.072 [info] Extension installed successfully: ms-vscode.cpptools-themes
+2023-01-20 19:48:17.072 [info] Extension installed successfully: ms-vscode.cmake-tools
+2023-01-20 19:48:17.072 [info] Extension installed successfully: twxs.cmake
+2023-01-20 19:48:17.072 [info] Extension installed successfully: ms-vscode.cpptools
+2023-01-20 19:48:17.072 [info] Extension installed successfully: ms-vscode.cpptools-extension-pack
+2023-01-20 19:50:02.707 [info] [127.0.0.1][5e50e934][ManagementConnection] The client has disconnected gracefully, so the connection will be disposed.
+2023-01-20 19:50:02.837 [info] [127.0.0.1][e1ffd4d7][ExtensionHostConnection] <740> Extension Host Process exited with code: 0, signal: null.
